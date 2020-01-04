@@ -1,7 +1,17 @@
-FROM golang:1.12-alpine3.10
+FROM golang:1.12-alpine3.10 as compilador
 
-COPY . codeeducation/
+WORKDIR /src
 
-WORKDIR codeeducation/
+COPY . /src
 
-CMD go run codeeducation.go
+RUN go build /src/codeeducation.go
+
+##################################  scratch  ubuntu:latest
+
+FROM scratch
+
+COPY --from=compilador /src/codeeducation codeeducation.sh
+
+WORKDIR /
+
+ENTRYPOINT ["/codeeducation.sh"]
